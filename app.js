@@ -3,8 +3,10 @@ const { nextTick } = require("process");
 
 const PORT = 4000;
 let allPokemon = require("./data");
-
 const app = express();
+
+const cors = require("cors");
+app.use(cors("http://localhost:4000"));
 app.use(express.json());
 
 // Importing all the pokemon for our data file
@@ -53,12 +55,23 @@ app.delete("/pokemon/:id", (req, res) => {
 });
 
 // -- Define your route listeners here! --
-/*--app.get("/pokemon/search/:pesquisa", (req, res, next) => {
-  const { pesquisa } = req.params;
-  const arraydePokemons = allPokemon.filter((element) => {
-    return element.types.includes(pesquisa.toLowerCase());
-  });
-  return res.status(200).json(arraydePokemons);
-});-*/
+app.get("/search", (req, res, next) => {
+  let foundPokemon = [];
+  if (req.query.name) {
+    allPokemon.forEach((pokemon) => {
+      if (pokemon.name === req.query.name) {
+        foundPokemon.push(pokemon);
+      }
+    });
+  }
+  if (req.query.types) {
+    allPokemon.forEach((pokemon) => {
+      if (pokemon.types.includes(req.query.types)) {
+        foundPokemon.push(pokemon);
+      }
+    });
+  }
+  return res.status(200).json(foundPokemon);
+});
 
 app.listen(PORT, () => console.log(`Server up and running at port ${PORT}`));
